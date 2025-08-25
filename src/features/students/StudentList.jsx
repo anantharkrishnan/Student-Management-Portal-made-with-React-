@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 
 export default function StudentList() {
   const dispatch = useDispatch();
-  const { data, loading, error } = useSelector(state => state.students);
+  const { data, loading, error } = useSelector((state) => state.students);
 
   useEffect(() => {
-    dispatch(fetchStudents());
+    dispatch(fetchStudents()); 
   }, [dispatch]);
 
   const handleDelete = (id) => {
@@ -43,7 +43,7 @@ export default function StudentList() {
             >
               <div className="mb-3">
                 <p className="text-xl font-semibold text-gray-800">{student.name}</p>
-             </div>
+              </div>
 
               <div className="flex gap-3 mt-4">
                 <Link

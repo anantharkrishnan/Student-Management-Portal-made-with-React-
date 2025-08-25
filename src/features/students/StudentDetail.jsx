@@ -1,29 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 export default function StudentDetail() {
   const { id } = useParams();
-  const [student, setStudent] = useState(null);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    axios
-      .get(`http://localhost:3001/students/${id}`)
-      .then((res) => {
-        setStudent(res.data);
-      })
-      .catch(() => {
-        setError('Student not found');
-      });
-  }, [id]);
-
-  if (error) {
-    return <p className="text-center text-red-600 mt-10">{error}</p>;
-  }
+  
+  const student = useSelector((state) =>
+    state.students.data.find((s) => s.id.toString() === id)
+  );
 
   if (!student) {
-    return <p className="text-center text-blue-500 mt-10">Loading...</p>;
+    return <p className="text-center text-red-600 mt-10">Student not found</p>;
   }
 
   return (
@@ -50,4 +38,5 @@ export default function StudentDetail() {
     </div>
   );
 }
+
 

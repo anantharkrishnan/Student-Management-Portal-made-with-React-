@@ -1,37 +1,38 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/students';
 
-// ✅ Fetch students
 export const fetchStudents = createAsyncThunk('students/fetchStudents', async () => {
-  const res = await axios.get(API_URL);
-  return res.data;
+  const res = await fetch('/db.json');
+  const data = await res.json();
+  return data.students; 
 });
 
-// ✅ Add student to API
-export const addStudent = createAsyncThunk('students/addStudent', async (student) => {
-  const res = await axios.post(API_URL, student);
-  return res.data;
-});
 
-// ✅ Delete student from API
-export const deleteStudent = createAsyncThunk('students/deleteStudent', async (id) => {
-  await axios.delete(`${API_URL}/${id}`);
-  return id;
-});
+const savedStudents = JSON.parse(localStorage.getItem('students')) || [];
 
 const studentSlice = createSlice({
   name: 'students',
   initialState: {
-    data: [],
+    data: savedStudents,
     loading: false,
     error: null,
   },
   reducers: {
+    addStudent: (state, action) => {
+      const newStudent = { id: Date.now().toString(), ...action.payload };
+      state.data.push(newStudent);
+      localStorage.setItem('students', JSON.stringify(state.data));
+    },
     editStudent: (state, action) => {
-      const index = state.data.findIndex(s => s.id === action.payload.id);
-      if (index !== -1) state.data[index] = action.payload;
+      const index = state.data.findIndex((s) => s.id === action.payload.id);
+      if (index !== -1) {
+        state.data[index] = action.payload;
+        localStorage.setItem('students', JSON.stringify(state.data));
+      }
+    },
+    deleteStudent: (state, action) => {
+      state.data = state.data.filter((s) => s.id !== action.payload);
+      localStorage.setItem('students', JSON.stringify(state.data));
     },
   },
   extraReducers: (builder) => {
@@ -41,21 +42,21 @@ const studentSlice = createSlice({
       })
       .addCase(fetchStudents.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+        
+        if (state.data.length === 0) {
+          state.data = action.payload;
+          localStorage.setItem('students', JSON.stringify(state.data));
+        }
       })
       .addCase(fetchStudents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      })
-      .addCase(addStudent.fulfilled, (state, action) => {
-        state.data.push(action.payload);
-      })
-      .addCase(deleteStudent.fulfilled, (state, action) => {
-        state.data = state.data.filter(s => s.id !== action.payload);
       });
   },
 });
 
-export const { editStudent } = studentSlice.actions;
+export const { addStudent, editStudent, deleteStudent } = studentSlice.actions;
 export default studentSlice.reducer;
+
+
 

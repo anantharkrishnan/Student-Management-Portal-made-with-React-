@@ -21,10 +21,10 @@ export default function StudentForm() {
     phone: '',
   };
 
-  const onSubmit = (values) => {
-    dispatch(addStudent(values)).then(() => {
-      navigate('/');
-    });
+  const onSubmit = (values, { resetForm }) => {
+    dispatch(addStudent(values)); 
+    resetForm();
+    navigate('/');
   };
 
   return (
@@ -81,4 +81,5 @@ export default function StudentForm() {
     </div>
   );
 }
+
 
